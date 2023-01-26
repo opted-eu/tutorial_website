@@ -2,14 +2,11 @@
 title: "About"
 ---
 
-About this site
-
-
 ## Imprint
 
 ### Copyright
 
-© The contents of the website are published in the World Wide Web for online access. Copyright for texts, images, graphic design and source code is owned by the University of Vienna and subject to legal protection. The production, use and non-commercial distribution of copies in electronic or printed form is allowed provided that the contents are not altered and the source is mentioned (Source: University of Vienna).
+©The contents of the website are published in the World Wide Web for online access. Copyright for texts, images, graphic design and source code is owned by the University of Vienna and subject to legal protection. The production, use and non-commercial distribution of copies in electronic or printed form is allowed provided that the contents are not altered and the source is mentioned (Source: University of Vienna).
 
 ### Liability
 
@@ -17,16 +14,10 @@ The text provided on the University of Vienna homepage has been reviewed with gr
 
 ### Responsibility for contents and editing
 
-OPTED Project Coordination
- 
-Computational Communication Science Lab
- 
-University of Vienna
- 
-Kolingasse 14-16
- 
-1090 Vienna
- 
-Austria
- 
-info@opted.eu
+OPTED Project Coordination <br>
+Computational Communication Science Lab <br>
+University of Vienna <br>
+Kolingasse 14-16 <br>
+1090 Vienna <br>
+Austria <br>
+info@opted.eu <br> 

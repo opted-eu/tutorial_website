@@ -2,18 +2,21 @@ project:
   type: website
 
 website:
-  twitter-card: 
-    site: "@OPTED_H2020"
+  favicon: /img/OPTED_logo_transparent.png
+  #body-footer: | 
+  #  ![](/img/eu_funded.png)
   title: "OPTED Tutorials"
   navbar:
-   # background: "0D6EFD"
+    logo: /img/OPTED_logo_transparent.png
+    background: white
     left:
       - href: index.qmd
         text: Home
       - about.qmd
       - meteor.qmd
-  page-footer: 
-    left: "This project has received funding from the European Union’s Horizon 2020 research & innovation programme under grant agreement No 951832. The document reflects only the authors’ views. The European Union is not liable for any use that may be made of the information contained herein.Although the information found on this system has been produced and processed from sources believed to be reliable, no warranty, express or implied, is made regarding accuracy, adequacy, completeness, legality, reliability or usefulness of any information."
+  page-footer:  
+    left: | 
+      ![](/img/eu_funded.png){width=60%}
     right: 
       - icon: github
         href: https://github.com/opted-eu
