@@ -6,14 +6,17 @@ website:
   #body-footer: | 
   #  ![](/img/eu_funded.png)
   title: "OPTED Tutorials"
-  navbar:
+  sidebar:
+    style: floating
     logo: /img/OPTED_logo_transparent.png
     background: white
-    left:
-      - href: index.qmd
-        text: Home
-      - about.qmd
-      - meteor.qmd
+    contents: 
+      - section: "Home"
+        contents:
+          - about.qmd
+      - section: "Tutorials"
+        contents:
+          - meteor.qmd
   page-footer:  
     left: | 
       ![](/img/eu_funded.png){width=60%}
