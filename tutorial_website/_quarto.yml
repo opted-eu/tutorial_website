@@ -6,6 +6,7 @@ website:
   #body-footer: | 
   #  ![](/img/eu_funded.png)
   title: "OPTED Tutorials"
+  site-url: https://tutorials.opted.eu
   sidebar:
     style: floating
     logo: /img/OPTED_logo_transparent.png
@@ -16,7 +17,8 @@ website:
           - about.qmd
       - section: "Tutorials"
         contents:
-          - meteor.qmd
+          - tutorials/meteor.qmd
+          - tutorials/wp_scraping/index.qmd
   page-footer:  
     left: | 
       ![](/img/eu_funded.png){width=60%}
