@@ -1,0 +1,344 @@
+---
+title: "Elegant Web-Scraping: WordPress API"
+format: html
+author: Paul Balluff & Marvin Stecker
+---
+
+- Difficulty: Medium
+- Requirements: 
+    - Basic knowledge of the python syntax
+    - Knowledge on how to use `pip`
+    - A favourite code editor (or so called "IDE")[^ide]
+
+[^ide]: If you are not sure about which IDE to use, we recommend [VSCode](https://code.visualstudio.com/), [PyCharm](https://www.jetbrains.com/pycharm/), or [Jupyter Notebook](https://jupyter.org/)
+
+# Introduction
+
+In this tutorial, we show how journalistic media texts can be retrieved by leveraging the standard API provided by WordPress. WordPress was originally designed as a blogging software, but it evolved to a complex content management software. Because is open-source and can be used for free, it became popular among professional news outlets, citizen journalists, alternative media, and even online retailers (just to name a few). According to the developers of WordPress, around 43% of all websites run on WordPress!
+
+Fortunately, WordPress provides a API which can be queried to retrieve posts (or news articles) in a standardized format. This means, that most websites that use WordPress as their content management system, all provide the exact same API. This is especially useful for researchers, because high quality and rich data can be retrieved form a variety of news sources without much customization.
+
+We showcase how to retrieve posts using a [python module](https://github.com/opted-eu/wp-json-scraper) developed by *Mickaël "Kilawyn" Walter* on the example website [order-order.com](https://order-order.com/). The website is a good example, because it is an alternative media outlet commenting on politics in the UK, but it is not available in "traditional" data archives.
+
+# Overview
+
+1. Installing the python module
+2. Testing the API
+3. Exploring the content
+4. Querying a single post
+5. Downloading and storing posts
+6. Summary
+
+A set of finished sample scripts can be downloaded at the bottom of this page.
+
+
+# Installation
+
+First, clone (or download) our repository for `wp-json-scraper`. The module was originally developed by *Mickaël "Kilawyn" Walter* and it provides a convenient wrapper for the WordPress API in python. We created a fork in our OPTED repository, where we made some minor improvements to the already excellent software.
+
+You can clone the repository with this command:
+
+```bash
+git clone https://github.com/opted-eu/wp-json-scraper.git
+cd wp-json-scraper
+```
+
+Alternatively, you can go to the GitHub repository, download it as zip file, and extract it in the destination of your choice.
+
+Next, open the root folder of the repository in your favourite code editor. **For the remainder of the tutorial, we always assume that you are in root directory of `wp-json-scraper`** (where you can find the files `README.md` and `requirements.txt`)
+
+Now it is time to install the required modules for `wp-json-scraper`, you can do that by opening a terminal and entering this command:
+
+```bash
+pip install -r requirements.txt
+```
+
+Additionally, we need the `bs4` module for this tutorial:
+
+```bash
+pip install bs4
+```
+
+Finally, we make sure that the installation worked by creating a new python script where we try to load the module:
+
+```python
+from lib.wpapi import WPApi
+```
+
+This should run without errors.
+
+# Testing the API
+
+First, we need to ensure that the website that we want to scrape actually uses WordPress and also has the API exposed. For this, we create a new script that we name `check_api.py`. We load the required modules as follows:
+
+```python
+from lib.wpapi import WPApi
+from pprint import pprint # helper to pretty print output
+```
+
+Next, we declare the website that we want to check:
+
+```python
+target = "https://order-order.com/"
+```
+
+Checking the availability of the API is rather simple, we just have to create an instance of the `WPApi` class where we pass in our `target` as the first (and only) argument:
+
+```python
+wordpress = WPApi(target)
+```
+
+Next, we get the basic information of the website and have it printed:
+
+```python
+info = wordpress.get_basic_info()
+pprint(info)
+```
+
+Depending on the website, you will get more or less output here. If the website does not have WordPress (or the API is disabled), then the `WPApi` class will throw an error (`lib.exceptions.NoWordpressApi`).
+
+# Exploring the content
+
+Now that we have established that the API works as excected, we can move ahead and explore the content. First, we want to see how many posts are availabale in total:
+
+```python
+total_posts = wordpress.total_posts()
+print(total_posts)
+```
+
+There are over 40,000 posts ready for download from the page. But before we move on, let's explore some other aspects.
+
+For example, most blogs have categories associated with their posts:
+
+```python
+categories = wordpress.get_categories()
+print(len(categories))
+```
+
+The `get_categories()` method returns a list of dictionaries, where each represents a single category. In this case, the `categories` object should have a length of 13. Let's print out the names of these categories:
+
+```python
+for category in categories:
+    print(category['name'], category['id'])
+```
+
+We could also explore all available tags with `get_tags()` or all blog authors with `get_users()`:
+
+```python
+users = wordpress.get_users()
+print(len(users))
+for user in users:
+    print(user['name'], user['link'])
+```
+
+Another feature is to search posts based on keywords. Wordpress has a fulltext index of all posts, so you can query posts based on keywords that you find interesting:
+
+```python
+europe = wordpress.total_posts(search_terms='europe')
+print(europe)
+```
+
+There are over 2300 posts that contain the keyword `'europe'`. You can also try other keywords and check your results.
+
+# Querying a single post
+
+Before we scrape the entire contents of the website, let's check the data structure of a single post first. We can retrieve posts with the `get_posts()` method, which takes four keyword arguments:
+
+- `comments` (`bool`, default: `False`): indicate whether you want to retrieve comments as well. 
+- `start` (`int`, default: `None`): select starting number of posts to retrieve. Default setting is that it starts at the first post (usually sorted by date).
+- `num` (`int`, default: `None`): set the limit of total posts to retrieve. Default setting is without any limit.
+- `force` (`bool`, default: `False`):: indicate whether you want to force downloading. The `WPApi` client caches all posts in the background. If you do not want to use the cached posts, then you  select `True`.
+
+To retrieve the newest post, we call the method with the following arguments:
+
+```python
+posts = wordpress.get_posts(num=1)
+print(len(posts))
+```
+
+The `posts` object is a list of dictionaries, where each dictionary represents a single post. Because we set the limit (`num`) to `1`, the list has the length of 1. So there is only one post that we can unpack and inspect as follows:
+
+```python
+post = posts[0]
+print(post.keys())
+```
+
+The `keys()` method shows us all fields that a single object contains. We get meta-information in a beatiful and standardized format. For example, regardless of the blog layout or language, the `date` field is always in a machine readable format. The exact fields that are interesting for your research might vary, but typically the most interesting fields are:
+
+- `id` (`int`): numeric ID of the post.
+- `date` (`str`): Date and time post was published. Format `YYYY-MM-DD HH:MM:SS`.
+- `modified` (`str`): Date and time post was modified. Format `YYYY-MM-DD HH:MM:SS`.
+- `link` (`str`): Official link to post. This is useful for checking the content later.
+- `title` (`dict`): Title or headline of the post. The data is a dictionary that contains the key `rendered`, which shows the title as it is served to the user.
+- `content` (`dict`): Content (or body text) of the post. The data is a dictionary that contains the key `rendered`, which shows the content as it is served to the user.
+- `excerpt` (`dict`): Excerpt (or a summary) of the post. Same as above, the key of interest is `rendered`.
+- `author` (`int`): numeric ID of the author. To resolve the author names, we can use the `get_users()` method.
+- `categories` (`list`): a list of numeric category IDs. We can resolve the category names by using the `get_categories()` method.
+- `tags` (`list`): similarly to `categories`, this is a list of numeric tag IDs that we can resolve with the `get_tags()` method.
+
+## Reformatting a post
+
+Of course, we could just take the `post` object and store it as a JSON file. However, then we would also store less interesting information and would store the nested structure. Therefore, we reformat some fields and also unnest the content.
+
+First, we create a new empty dictionary that will hold the reformatted post and we can already access some fields that we do not need to reformat:
+
+```python
+cleaned_post = {'id': post['id'],
+                'link': post['link'],
+                'date_published': post['date'],
+                'date_modified': post['modified']}
+```
+
+To unnest the `title` field, we can do the following:
+
+```python
+cleaned_post['title'] = post['title']['rendered']
+```
+
+The `content` field is a bit tricky, because it often also contains HTML fragments that are used for formatting. There are several ways to approach this. In this tutorial, we are going to use the `bs4` module which we downloaded in the installation section. We import the `BeautifulSoup` class, which can parse HTML and remove all kinds of unwanted tags.
+
+```python
+from bs4 import BeautifulSoup
+```
+
+The `BeautifulSoup` class handles all the troublesome aspects of parsing HTML and helps us to simply return cleaned text by accessing the `text` attribute:
+
+
+```python
+content = BeautifulSoup(post['content']['rendered'])
+cleaned_post['content'] = content.text
+```
+
+***Note:** we could also extract links to other pages in this step, if we were interested in that.*
+
+
+Same applies to the `excerpt` field
+
+```python
+excerpt = BeautifulSoup(post['excerpt']['rendered'])
+cleaned_post['excerpt'] = excerpt.text
+```
+
+The next part that is tricky, is to resolve the author, category, and tag IDs to their names. It works the same way for all three IDs, so we show only here how to do it for the author IDs. First we have to get all authors with the `get_users()` method:
+
+```python
+users = wordpress.get_users()
+```
+
+As mentioned above, this returns a list of dictionaries, where each dict represents meta information on a single author. We want to know which author has which ID, so we can simply reformat the `users` list to a dictionary. The dictionary will have the author ID as key and the author name as value:
+
+```python
+authors = {}
+for user in users:
+    authors[user['id']] = user['name']
+
+print(authors)
+```
+
+We now got a dictionary where we can lookup authors by ID:
+
+```python
+our_author = authors[post['author']]
+print(our_author)
+```
+
+Finally, we can add that to our `cleaned_post` dictionary:
+
+```python
+cleaned_post['author'] = authors[post['author']]
+```
+
+Finally, we have one post cleaned and reformatted. Let's admire it:
+
+```python
+pprint(cleaned_post)
+```
+
+# Downloading and storing posts
+
+In this section we cover how to download **all** posts that were published on the website. Please proceed with care, because some websites have a lot of content. For the purpose of the tutorial, we limit our scraping to 100 articles. 
+
+We will proceed as in the previous section, but this time we do not only apply it to one article, but to many articles in a for loop.
+
+So a lot of code from above will be repeated. At some spots, we also make our code more efficient.
+
+## Making preparations
+
+Let's ensure that we really have all authors, categories, and tags ready so we can resolve their IDs. We use a shorthand notation here, which is a bit harder to read, but does exactly the same as we have done above:
+
+```python
+users = wordpress.get_users()
+authors = {user['id']: user['name'] for user in users}
+
+categories = wordpress.get_categories()
+categories = {c['id']: c['name'] for c in categories}
+
+tags = wordpress.get_tags()
+tags = {t['id']: t['name'] for t in tags}
+```
+
+Next, we need to set a directory where we will store our articles. Of course, there are many ways to to that. In this tutorial, we will save every article as a single json file. We use the `pathlib` here, which is very convenient for handling paths:
+
+```python
+from pathlib import Path
+p = Path.cwd() # get current working directory
+output_dir = p / 'output' / 'order-order.com'
+
+if not output_dir.exists():
+    output_dir.mkdir(parents=True)
+```
+
+This code simply creates a new directory structure while making sure that nothing is overwritten. If you execute this code, a new folder will appear in your current working directory.
+
+Final preparation is to ensure that we loaded the `json` module:
+
+```python
+import json
+```
+
+## Downloading and parsing several posts
+
+To download many posts, we added the `yield_posts()` method to the `WPApi` class, which can handle downloading larger amounts of data. This method is a generator and returns one post at a time as soon as it is downloaded. This allows us to process the post as soon as it is downloaded and then store it to our output directory as a single JSON file.
+
+***Note:** As mentioned above, we will limit our request here to 100 posts by using the `num` keywords argument.* 
+
+```python
+for post in wordpress.yield_posts(num=100):
+    post_id = post['id']
+    print(post_id)
+
+    cleaned_post = {'id': post_id,
+                    'link': post['link'],
+                    'date_published': post['date'],
+                    'date_modified': post['modified']}
+
+    title = BeautifulSoup(post['title']['rendered'])
+    cleaned_post['title'] = post['title']['rendered']
+
+    content = BeautifulSoup(post['content']['rendered'])
+    cleaned_post['content'] = content.text
+
+    excerpt = BeautifulSoup(post['excerpt']['rendered'])
+    cleaned_post['excerpt'] = excerpt.text
+
+    cleaned_post['author'] = authors[post['author']]
+    cleaned_post['categories'] = [categories[c] for c in post['categories']]
+    cleaned_post['tags'] = [tags[t] for t in post['tags']]
+
+    with open(output_dir / f'{post_id}.json', 'w') as f:
+        json.dump(cleaned_post, f)
+```
+
+Some additional information on above code block. We print out the current `post_id`, because then we know, whether the download is still running. The middle part is just the condensed version of the code that we explained above. We also use the shorthand notation for resolving the categories and tags. And finally we use `json.dump()` to store the post in the output directory where the file name is the post ID.
+
+When you execute this code block you can observe how the output directory is slowly filled with single json files.
+
+# Summary
+
+We have shown how to leverage the WordPress API to download media text data in a structure and clean format. The example shown here was an alternative media outlet from the UK. But the great advantage of this method is that above code works on a large number of websites and does not require much adjustment.
+
+There are two scripts attached to this tutorial:
+
+- `check_api.py`: shows how to explore the API step-by-step ([download](check_api.py))
+- `download_posts.py`: a condensed script that downloads 100 posts and stores them in a subdirectory ([download](download_posts.py))
+
