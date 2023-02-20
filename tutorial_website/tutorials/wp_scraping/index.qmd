@@ -226,7 +226,7 @@ excerpt = BeautifulSoup(post['excerpt']['rendered'])
 cleaned_post['excerpt'] = excerpt.text
 ```
 
-The next part that is tricky, is to resolve the author, category, and tag IDs to their names. It works the same way for all three IDs, so we show only here how to do it for the author IDs. First we have to get all authors with the `get_users()` method:
+The next part that is tricky: it is to resolve the author, category, and tag IDs to their names. It works the same way for all three IDs, so we show only here how to do it for the author IDs. First we have to get all authors with the `get_users()` method:
 
 ```python
 users = wordpress.get_users()
