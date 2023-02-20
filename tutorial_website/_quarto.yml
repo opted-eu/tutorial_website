@@ -8,6 +8,7 @@ website:
   title: "OPTED Tutorials"
   site-url: https://tutorials.opted.eu
   sidebar:
+    title: "OPTED Tutorials"
     style: floating
     logo: /img/OPTED_logo_transparent.png
     background: white
