@@ -215,8 +215,9 @@ content = BeautifulSoup(post['content']['rendered'])
 cleaned_post['content'] = content.text
 ```
 
-***Note:** we could also extract links to other pages in this step, if we were interested in that.*
-
+::: {.callout-note}
+We could also extract links to other pages in this step, if we were interested in that.
+:::
 
 Same applies to the `excerpt` field
 
@@ -306,7 +307,9 @@ import json
 
 To download many posts, we added the `yield_posts()` method to the `WPApi` class, which can handle downloading larger amounts of data. This method is a generator and returns one post at a time as soon as it is downloaded. This allows us to process the post as soon as it is downloaded and then store it to our output directory as a single JSON file.
 
-***Note:** As mentioned above, we will limit our request here to 100 posts by using the `num` keywords argument.* 
+::: {.callout-note}
+As mentioned above, we will limit our request here to 100 posts by using the `num` keywords argument.
+:::
 
 ```python
 for post in wordpress.yield_posts(num=100):
