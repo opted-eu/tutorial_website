@@ -46,7 +46,7 @@ for post in wordpress.yield_posts(num=100):
     cleaned_post['categories'] = [categories[c] for c in post['categories']]
     cleaned_post['tags'] = [tags[t] for t in post['tags']]
 
-    with open(output_dir / f'{post_id}.json', 'w') as f:
-        json.dump(cleaned_post, f)
+    with open(output_dir / f'{post_id}.json', 'w', encoding="utf8") as f:
+        json.dump(cleaned_post, f, ensure_ascii=False)
 
 print('Done!')

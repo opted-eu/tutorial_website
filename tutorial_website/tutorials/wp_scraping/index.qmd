@@ -14,20 +14,20 @@ author: Paul Balluff & Marvin Stecker
 
 # Introduction
 
-In this tutorial, we show how journalistic media texts can be retrieved by leveraging the standard API provided by WordPress. WordPress was originally designed as a blogging software, but it evolved to a complex content management software. Because is open-source and can be used for free, it became popular among professional news outlets, citizen journalists, alternative media, and even online retailers (just to name a few). According to the developers of WordPress, around 43% of all websites run on WordPress!
+In this tutorial, we show how journalistic media texts can be retrieved by leveraging the standard API provided by WordPress. WordPress was originally designed as a blogging software, but it evolved to a complex content management software. Because is open-source and can be used for free, it has become popular among professional news outlets, citizen journalists, alternative media, and even online retailers (just to name a few). According to the developers of WordPress, around 43% of all websites run on WordPress!
 
-Fortunately, WordPress provides a API which can be queried to retrieve posts (or news articles) in a standardized format. This means, that most websites that use WordPress as their content management system, all provide the exact same API. This is especially useful for researchers, because high quality and rich data can be retrieved form a variety of news sources without much customization.
+Fortunately, WordPress provides a API which can be queried to retrieve posts (or news articles) in a standardized format. This means that most websites that use WordPress as their content management system, all provide the exact same API. This is especially useful for researchers, because high quality and rich data can be retrieved form a variety of news sources without much customization.
 
-We showcase how to retrieve posts using a [python module](https://github.com/opted-eu/wp-json-scraper) developed by *Mickaël "Kilawyn" Walter* on the example website [order-order.com](https://order-order.com/). The website is a good example, because it is an alternative media outlet commenting on politics in the UK, but it is not available in "traditional" data archives.
+We showcase how to retrieve posts using a [python module](https://github.com/opted-eu/wp-json-scraper) developed by *Mickaël "Kilawyn" Walter* on the example website [Guido Fawkes](https://order-order.com/). The website is a good example, because it is an alternative media outlet commenting on politics in the UK, but it is not available in "traditional" data archives. Find out more about the website, including meta-data, on [Meteor](https://meteor.opted.eu/view/Source/https_order_order_com_website).
 
 # Overview
 
-1. Installing the python module
-2. Testing the API
-3. Exploring the content
-4. Querying a single post
-5. Downloading and storing posts
-6. Summary
+1. [Installing the python module](#installation)
+2. [Testing the API](#testing-the-api)
+3. [Exploring the content](#exploring-the-content)
+4. [Querying a single post](#querying-a-single-post)
+5. [Downloading and storing posts](#downloading-and-storing-posts)
+6. [Summary](#summary)
 
 A set of finished sample scripts can be downloaded at the bottom of this page.
 
@@ -36,7 +36,7 @@ A set of finished sample scripts can be downloaded at the bottom of this page.
 
 First, clone (or download) our repository for `wp-json-scraper`. The module was originally developed by *Mickaël "Kilawyn" Walter* and it provides a convenient wrapper for the WordPress API in python. We created a fork in our OPTED repository, where we made some minor improvements to the already excellent software.
 
-You can clone the repository with this command:
+You can clone the repository with this command in your Terminal or shell:
 
 ```bash
 git clone https://github.com/opted-eu/wp-json-scraper.git
@@ -45,7 +45,13 @@ cd wp-json-scraper
 
 Alternatively, you can go to the GitHub repository, download it as zip file, and extract it in the destination of your choice.
 
-Next, open the root folder of the repository in your favourite code editor. **For the remainder of the tutorial, we always assume that you are in root directory of `wp-json-scraper`** (where you can find the files `README.md` and `requirements.txt`)
+Next, open the root folder of the repository in your favourite code editor. **For the remainder of the tutorial, we always assume that you are in root directory of `wp-json-scraper`** (where you can find the files `README.md` and `requirements.txt`).
+
+::: {.callout-tip collapse="true"}
+It can be useful to run all of these scripts in a virtual environment in Python. This isolates any programm you install for this tutorial from your usual Python setup and gives you a 'clean' sandbox. If you want to do this, you should create a virtual environment in your folder and then activate here. For more help, see these excellent youtube videos: <br>
+[Windows setup](https://www.youtube.com/watch?v=APOPm01BVrk) <br>
+[Mac or Linux setup](https://www.youtube.com/watch?v=Kg1Yvry_Ydk) 
+:::
 
 Now it is time to install the required modules for `wp-json-scraper`, you can do that by opening a terminal and entering this command:
 
@@ -71,7 +77,7 @@ This should run without errors.
 
 First, we need to ensure that the website that we want to scrape actually uses WordPress and also has the API exposed. For this, we create a new script that we name `check_api.py`. We load the required modules as follows:
 
-```python
+```{.python filename="check_api.py"}
 from lib.wpapi import WPApi
 from pprint import pprint # helper to pretty print output
 ```
@@ -225,7 +231,7 @@ The next part that is tricky, is to resolve the author, category, and tag IDs to
 users = wordpress.get_users()
 ```
 
-As mentioned above, this returns a list of dictionaries, where each dict represents meta information on a single author. We want to know which author has which ID, so we can simply reformat the `users` list to a dictionary. The dictionary will have the author ID as key and the author name as value:
+As mentioned above, this returns a list of dictionaries where each dict represents meta information on a single author. We want to know which author has which ID, so we can simply reformat the `users` list to a dictionary. The dictionary will have the author ID as key and the author name as value:
 
 ```python
 authors = {}
@@ -258,13 +264,13 @@ pprint(cleaned_post)
 
 In this section we cover how to download **all** posts that were published on the website. Please proceed with care, because some websites have a lot of content. For the purpose of the tutorial, we limit our scraping to 100 articles. 
 
-We will proceed as in the previous section, but this time we do not only apply it to one article, but to many articles in a for loop.
+We will proceed as in the previous section, but this time we do not only apply it to one article but to many articles in a for loop.
 
 So a lot of code from above will be repeated. At some spots, we also make our code more efficient.
 
 ## Making preparations
 
-Let's ensure that we really have all authors, categories, and tags ready so we can resolve their IDs. We use a shorthand notation here, which is a bit harder to read, but does exactly the same as we have done above:
+Let's ensure that we really have all authors, categories, and tags ready so we can resolve their IDs. We use a shorthand notation here (see: dictionary comprehension if you want to learn more), which is a bit harder to read, but does exactly the same as we have done above:
 
 ```python
 users = wordpress.get_users()
@@ -277,7 +283,7 @@ tags = wordpress.get_tags()
 tags = {t['id']: t['name'] for t in tags}
 ```
 
-Next, we need to set a directory where we will store our articles. Of course, there are many ways to to that. In this tutorial, we will save every article as a single json file. We use the `pathlib` here, which is very convenient for handling paths:
+Next, we need to set a directory where we will store our articles. There are many ways to to that. In this tutorial, we will save every article as a single json file. We use the `pathlib` here, which is very convenient for handling paths:
 
 ```python
 from pathlib import Path
@@ -325,11 +331,11 @@ for post in wordpress.yield_posts(num=100):
     cleaned_post['categories'] = [categories[c] for c in post['categories']]
     cleaned_post['tags'] = [tags[t] for t in post['tags']]
 
-    with open(output_dir / f'{post_id}.json', 'w') as f:
-        json.dump(cleaned_post, f)
+    with open(output_dir / f'{post_id}.json', 'w', encoding = "utf8") as f:
+        json.dump(cleaned_post, f, ensure_ascii=False)
 ```
 
-Some additional information on above code block. We print out the current `post_id`, because then we know, whether the download is still running. The middle part is just the condensed version of the code that we explained above. We also use the shorthand notation for resolving the categories and tags. And finally we use `json.dump()` to store the post in the output directory where the file name is the post ID.
+Some additional information on above code block. We print out the current `post_id`, because then we know whether the download is still running. The middle part is just the condensed version of the code that we explained above. We also use the shorthand notation for resolving the categories and tags. And finally we use `json.dump()` to store the post in the output directory where the file name is the post ID.
 
 When you execute this code block you can observe how the output directory is slowly filled with single json files.
 

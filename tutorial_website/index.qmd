@@ -6,4 +6,6 @@ Welcome to the tutorial section of the OPTED project. Here you can find various 
 
 Especially useful for this is our growing plattform of news sources [Meteor](https://meteor.opted.eu/), which allows you to filter news sources from many European countries by meta-information such as their national scope, publication frequency or ad model. Equally, Meteor also contains software tools that make it easier for you to download and analyse data from various sources.
 
+If you are interested in using Meteor for content analysis projects, have a look at our tutorial for using the [WordPress API](tutorials/wp_scraping/index.qmd). This works especially well for 'alternative' media sources.
+
 To learn more about our project, visit <https://opted.eu>.
