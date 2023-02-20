@@ -284,7 +284,7 @@ tags = wordpress.get_tags()
 tags = {t['id']: t['name'] for t in tags}
 ```
 
-Next, we need to set a directory where we will store our articles. There are many ways to to that. In this tutorial, we will save every article as a single json file. We use the `pathlib` here, which is very convenient for handling paths:
+Next, we need to set a directory where we will store our articles. There are many ways to to that. In this tutorial, we will save every article as a single JSON file. We use the `pathlib` here, which is very convenient for handling paths:
 
 ```python
 from pathlib import Path
@@ -340,7 +340,7 @@ for post in wordpress.yield_posts(num=100):
 
 Some additional information on above code block. We print out the current `post_id`, because then we know whether the download is still running. The middle part is just the condensed version of the code that we explained above. We also use the shorthand notation for resolving the categories and tags. And finally we use `json.dump()` to store the post in the output directory where the file name is the post ID.
 
-When you execute this code block you can observe how the output directory is slowly filled with single json files.
+When you execute this code block you can observe how the output directory is slowly filled with single JSON files.
 
 # Summary
 
