@@ -13,13 +13,12 @@ website:
     logo: /img/OPTED_logo_transparent.png
     background: white
     contents: 
-      - section: "Home"
-        contents:
-          - about.qmd
+      - file: index.qmd
       - section: "Tutorials"
         contents:
-          - tutorials/meteor.qmd
+          - tutorials/meteor/index.qmd
           - tutorials/wp_scraping/index.qmd
+      - file: about.qmd
   page-footer:  
     left: | 
       ![](/img/eu_funded.png){width=60%}
