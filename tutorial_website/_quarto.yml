@@ -18,6 +18,7 @@ website:
         contents:
           - tutorials/meteor/index.qmd
           - tutorials/wp_scraping/index.qmd
+          - tutorials/telegram_scraping/index.qmd
       - file: about.qmd
   page-footer:  
     left: | 

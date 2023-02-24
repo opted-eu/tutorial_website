@@ -1,0 +1,320 @@
+---
+title: "Scraping Telegram: Alternative News Sources"
+format: html
+author: Paul Balluff & Marvin Stecker
+---
+
+- Difficulty: Medium
+- Requirements: 
+    - Basic knowledge of the python syntax
+    - Knowledge on how to use `pip`
+    - A favourite code editor (or so called "IDE")[^ide]
+    - A Telegram account (alongside a phone with telegram installed)
+
+[^ide]: If you are not sure about which IDE to use, we recommend [VSCode](https://code.visualstudio.com/), [PyCharm](https://www.jetbrains.com/pycharm/), or [Jupyter Notebook](https://jupyter.org/)
+
+# Introduction
+
+In this tutorial, we show how journalistic media texts can be retrieved .... bla
+
+# Preparations & Installation
+
+To keep things neat and tidy, create a new directory for this tutorial and name it `telegram_scraping`. For the remainder of the tutorial, we assume that all commands are run from this directory.
+
+## Telegram API Account
+
+Before we jump into this tutorial, make sure that you have a Telegram account and retrieved your API credentials. Please note that a valid phone number is required to open an account.
+
+The exact procedures for obtaining API credentials might change from time to time. Therefore, please follow the steps outlined in the [official documentation for Telegram developers](https://core.telegram.org/api/obtaining_api_id) and then come back to this tutorial with a valid **API ID** and **API Hash**. 
+
+
+::: {.callout-tip}
+You can also find more information on how to retrieve API credentials in the [Telethon documentation](https://docs.telethon.dev/en/stable/basic/signing-in.html)
+:::
+
+## Required Packages
+
+To install the Telethon library open a terminal and install it via `pip`
+
+```bash
+pip install telethon
+```
+
+
+::: {.callout-tip collapse="true"}
+It can be useful to run all of these scripts in a virtual environment in Python. This isolates any programm you install for this tutorial from your usual Python setup and gives you a 'clean' sandbox. If you want to do this, you should create a virtual environment in your folder and then activate here. For more help, see these excellent youtube videos: <br>
+[Windows setup](https://www.youtube.com/watch?v=APOPm01BVrk) <br>
+[Mac or Linux setup](https://www.youtube.com/watch?v=Kg1Yvry_Ydk) 
+:::
+
+# Testing the API
+
+Create a new file called `secrets.json`, this is where you store your Telegram API credentials. Saving them in a separate file, keeps your credentials detached from the scraping scripts. Open `secrets.json` and edit it accordingly:
+
+```{.json filename="secrets.json"}
+{
+    "api_id": "<your api id>",
+    "api_hash": "<your api hash>"
+}
+```
+
+::: {.callout-warning}
+Please do not share your API credentials with anyone.
+:::
+
+Next, we make a new python script and name it `check_api.py` in which we make the following imports:
+
+```{.python filename="check_api.py"}
+import json # to load our API credentials
+from telethon.sync import TelegramClient # the Telegram client
+```
+
+If everything is installed correctly, these imports should run without errors.
+
+Now, we load our API credentials:
+
+```python
+with open('secrets.json') as f:
+    credentials = json.load(f)
+```
+
+Next, we instantiate a new `TelegramClient` where we pass in our API credentials:
+
+```python
+client = TelegramClient('user', 
+                        credentials['api_id'], 
+                        credentials['api_hash']).start()
+```
+
+The `TelegramClient` class needs three arguments: the session name (`'user'`), the API ID and the API hash. The session name tells Telethon where to store the session credentials. The first time you run above code, you will be prompted to enter your phone number to verify it is really you:
+
+```
+Please enter your phone (or bot token): +01 355-1337
+```
+Once you entered your phone number, Telegram will send you a verification code to your phone. You get prompted again to enter the verification code in python:
+
+```
+Please enter the code you received: 12345
+Signed in successfully as User
+```
+
+We have to complete this only once. If you observe your current directory carefully, you will notice that a new file appeared: `user.session`. Telethon stores the session information in this file. The file name is specified in the first argument when instantiating the `TelegramClient` (remember, we passed in `'user'`). If you delete `user.session`, you will have to repeat the login verification.
+
+A great way of checking whether the client is configured correctly is by sending a message to yourself:
+
+```python
+client.send_message('me', 'Hello to myself!')
+```
+
+If you check Telegram on your phone, you should have received a message.
+
+# Connecting to a chat
+
+In this tutorial we will explore the Telegram account by [ovalmedia](https://meteor.opted.eu/view/Source/ovalmedia_english). It is an alternative media outlet that mainly offers content on alternative video streaming platforms. They promote their recent videos on telegram alongside a summary of each video. Of course, you could also use any other Telegram account for this tutorial and please feel free to experiment.
+
+We create a new script `connect.py` where import the same modules as before and instantiate the `TelegramClient`:
+
+```{.python filename="connect.py"}
+import json # to load our API credentials
+from telethon.sync import TelegramClient # the Telegram client
+from pprint import pprint # helper to pretty print
+
+with open('secrets.json') as f:
+    credentials = json.load(f)
+
+client = TelegramClient('user', 
+                        credentials['api_id'], 
+                        credentials['api_hash']).start()
+```
+
+Next, we save the username of ovalmedia in an object and use the `get_entity()` method to retrieve the account:
+
+```python
+account_name = 'ovalmedia_english'
+chat = client.get_entity(account_name)
+```
+
+We can now check the official name of the account by accessing the `title` attribute of the `chat` object:
+
+```python
+chat.title
+# 'OVALmedia | English'
+```
+
+With this step, we can also verify whether we really got the account that we were looking for. 
+
+# Retrieving messages
+
+Before we scrape all messages in a channel, let's check a single message first. We can retrieve messages with the `get_messages()` method, which takes the `chat` object as its argument:
+
+```python
+messages = client.get_messages(chat)
+```
+
+The `messages` object behaves like a python list, but additionally as a `total` attribute that shows the total number of messages in the chat:
+
+```python
+print(messages.total)
+```
+The first element in the list is also the most recent message, and we can access it like this:
+
+```python
+message = messages[0]
+```
+`message` the message object has a series of attributes, the most interesting for us are:
+
+- `id` (`int`): message id within this chat
+- `date` (`datetime`): timestamp when message was sent
+- `message` (`str`): the actual message content
+- `forwards` (`int`): number of times the message was forwarded
+- `views` (`int`): number of chat members who have seen the message
+
+Let's have a look at the most recent message in the channel:
+
+```python
+print('Newest message:')
+print(message.id, message.date)
+print('Message content:')
+print(message.message)
+print('Total views:', message.views, 'Total forwards:', message.forwards)
+```
+
+We can also use the `to_dict()` method to get all message contents and attributes as a python dictionary:
+
+```python
+pprint(message.to_dict())
+```
+
+::: {.callout-note collapse="true"}
+There is even more interesting data contained in the `message` object. For example, the `entities` attribute is a list of message elements and can contain URLs stored as `MessageEntityTextUrl` objects. This is potentially interesting, if you want to study information flows. Another interesting attribute is `media` where you can retrieve attached images.
+:::
+
+## Reformatting a message
+
+Of course, we could just take the `message.to_dict()` object and store it as a JSON file. However, then we would also store less interesting information and would store the nested structure. Therefore, we reformat some fields and also unnest the content.
+
+```python
+cleaned_message = {'channel_name': chat.username, # keep track on where we got the message from
+                   'id': message.id,
+                   'date': message.date,
+                   'content': message.message,
+                   'forwards': message.forwards,
+                   'views': message.views}
+```
+
+# Downloading and storing all messages
+
+If we want to retrieve **all** messages in from a telegram channel, we could use the `get_messages()` method and iterate over the resulting list. This works well for small chats, but less well for chats with thousands of messages. Instead, we use the `iter_messages()` method, which retrieves messages in batches and also has useful features such as limiting the number of messages to retrieve, or to search for keywords.
+
+We create a new script that we name `scrape_channel.py` and we make the same imports as before, but also import some utility modules
+
+
+```{.python filename="scrape_channel.py"}
+import json # to load our API credentials
+from telethon.sync import TelegramClient # the Telegram client
+from pprint import pprint # helper to pretty print
+from pathlib import Path # makes handling file paths a breeze
+
+with open('secrets.json') as f:
+    credentials = json.load(f)
+
+client = TelegramClient('user', 
+                        credentials['api_id'], 
+                        credentials['api_hash']).start()
+
+account_name = 'ovalmedia_english'
+
+```
+
+We prepare an output folder with the `Path` class:
+
+```python
+p = Path.cwd()
+
+output_dir = p / 'output' / account_name
+if not output_dir.exists():
+    output_dir.mkdir(parents=True)
+```
+
+Next, we get the chat as we did before:
+
+```python
+chat = client.get_entity(account_name)
+```
+
+Now, we use the `iter_messages()` method to incrementally retrieve messages (from newest to oldest). We use the method as for-loop generator, where with every iteration, we get a message, reformat it and then store it as a JSON file:
+
+```python
+for message in client.iter_messages(chat):
+    print('Retrieving message:', message.id)
+
+    cleaned_message =  {'channel_name': chat.username,
+                        'id': message.id,
+                        'date': message.date,
+                        'content': message.message,
+                        'forwards': message.forwards,
+                        'views': message.views}
+
+    file_name = output_dir / f'{message.id}.json'
+
+    with open(file_name, 'w') as f:
+        json.dump(cleaned_message, f, indent=True, default=str)
+```
+
+::: {.callout-note collapse="true"}
+# Rate Limits
+Telegram has rate limits in place. So if the chat that you want to scrape has more than 3000 messages, you should adjust your code. Telethon provides the `wait_time` keyword argument for this purpose where you can set a wait time in seconds between requests: e.g. `client.iter_messages(chat, wait_time=10)`
+:::
+
+When you execute the code block above, you can observe how the output directory is filled with single JSON files, where each file represents a single message. Of course you can also use pandas instead and construct a data frame:
+
+
+```python
+import pandas as pd
+
+tmp = []
+
+for message in client.iter_messages(chat):
+    print('Retrieving message:', message.id)
+    cleaned_message =  {'channel_name': chat.username,
+                        'id': message.id,
+                        'date': message.date,
+                        'content': message.message,
+                        'forwards': message.forwards,
+                        'views': message.views}
+
+    tmp.append(cleaned_message)
+
+df = pd.DataFrame(tmp)
+```
+
+## Filtering Messages
+
+We could also filter the results by using the `search` keyword argument, e.g.:
+
+```python
+for message in client.iter_messages(chat, search='europe'):
+    ...
+```
+
+Or set an offset date to retrieve only messages before a certain date, e.g.:
+
+```python
+from datetime import datetime
+my_datetime = datetime.strptime('2022-12-31', '%Y-%m-%d')
+
+for message in client.iter_messages(chat, offset_date=my_datetime):
+    ...
+```
+
+
+# Summary
+
+We have shown how to use the Telethon library to download media text data in a structure and clean format. The example shown here was an alternative media outlet from Germany. The advantage of this method is that above code works on a large number of accounts, since Telegram is also popular among political parties to engage with their supporters.
+
+There are three scripts attached to this tutorial:
+
+- `check_api.py`: shows how to test the API step-by-step ([download](check_api.py))
+- `connect.py`: shows how to setup the client and retrieve one message from a channel ([download](check_api.py))
+- `scrape_channel.py`: a condensed script that downloads all messages of a channel and stores them in a subdirectory ([download](scrape_channel.py))
+
