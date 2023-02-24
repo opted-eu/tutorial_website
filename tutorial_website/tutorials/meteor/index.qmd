@@ -1,0 +1,72 @@
+---
+title: "A Quick Tour through Meteor"
+format: html
+---
+
+
+OPTED *Meteor* (Media Text Open Registry) is a comprehensive and curated platform where researchers can search for text analysis tools, news sources, media organizations, data archives, and corpora. The platform allows you not only to browse, query, and download entries, but also make contributions to the platform. With your help, we are keeping *Meteor* dynamic and adaptable. You can to quickly find ways to access news media data as well as suitable text analysis tools and other digital resources. @fig-meteor-ui shows the landing page of the platform and provides an overview of the most important features.
+
+![User Interface of the landing page](meteor-ui.png){#fig-meteor-ui}
+
+# What's inside *Meteor*?
+
+Meteor has different types of entries. The primary types are:
+
+ - Journalistic News Sources 
+ - Media Organizations
+ - Datasets and Corpora
+ - Text Archives
+ - Tools for Text Analysis
+
+There are also secondary types that help us to link entries with each other for example countries, or channels such as Twitter or Instagram.
+
+# Exploring *Meteor*
+
+You can find specific resources with a free text search field that provides instant results (@fig-freetext).
+
+![Free text search with instant results.](freetext.png){#fig-freetext}
+
+You can either click on one of the instant results, or click on the magnifying glass (🔍) to view even more results. The free text search also looks into the description text of entries, alternative names, or the author field. So you can also find datasets or tools according to the names of authors.
+
+Another method of exploring the platform is by using the query screen which offers a variety of filters (@fig-filters). 
+
+![Example of query with filters.](filters.png){#fig-filters}
+
+You can find news sources depending on search criteria such as language, country, channel, or even the size of the followers. Tools can also be queried according to various meta information, such as programming languages, concepts, operations and so forth. 
+
+You then download the results in JSON format. One use case for this feature is that a researcher can query the platform for Twitter accounts in a specific country, download the query results and load them into a software for tweet collection. 
+
+::: {.callout-note}
+The download feature is not ready yet, but is coming very soon.
+:::
+
+# Detail View of Entries
+
+Once you click on an entry, you get to the detail view (see @fig-detail-news).
+
+![Example of detail view for a news source.](detail_news.png){#fig-detail-news}
+
+All related news sources are listed at the sidebar, which enables quick browsing through *Meteor*. Since the ownership structure of news sources is stored in the database as well, we also provide a network plot that helps you to explore these structures (@fig-network). 
+
+![Example of ownership network.](network.png){#fig-network}
+
+# Contributing Entries
+
+*Meteor* is fueled by its community. So we encourage users to contribute entries to the database. 
+We aim to make it as convenient as possible for to make contributions. A questionnaire guides you to enter the required meta-information (@fig-newentry). 
+
+![Screen for making a new entry.](newentry.png){#fig-newentry}
+
+*Meteor* leverages available APIs to enrich the information automatically. For example, we query Wikidata and Openstreetmap to retrieve general information for news sources and organizations, such as geographic names or addresses. For channel-specific information we call various APIs, such as siterankdata.com to retrieve information about daily website visitor count, or the Twitter API to get the follower count of an account.
+
+The metadata for tools, corpora, or datasets can be semi-automatically imported via several APIs (@fig-magic). We currently support CRAN, PyPI, arXiv, DOI, and GitHub.
+
+![Automatically retrieve meta-information from an API.](magic.png){#fig-magic}
+
+
+# Using Meteor in the Classroom
+
+Beyond a resource for scholarly research, Meteor can also be used in courses with (under-)graduate students.
+We successfully conducted a master level seminar where students learned about comparative research, as well as the theoretical foundations of media systems. The course consisted of two parts. The first part discussed selected readings about comparative research and (hybrid) media systems. The second part put these theoretical considerations into practice by systematically comparing countries based on the landscape of available news sources. For that purpose, groups of students chose two media systems in Europe and defined the subsection of news media that they were interested in (e.g., traditional print press). Meteor allowed the students to compare the two systems based on their sample of news sources.
+
+You can find all the resources for the course we designed at <https://meteor.opted.eu/guides/teaching-materials#downloads>
