@@ -15,9 +15,9 @@ author: Paul Balluff & Marvin Stecker
 
 # Introduction
 
-In this tutorial, we show how journalistic media texts can be retrieved from Telegram. Many news outlets, especially alternative media platforms, but also more fringe-groups of the political spectrum, use public channels on Telegram to share (mis-)information or recruit and mobilise supporters. 
+In this tutorial, we show how journalistic media texts can be retrieved from Telegram. Many news outlets, especially alternative media platforms use Telegram to engage with their audiences. The low degree of moderation and supervision makes Telegram not only an interesting platform for media outlets spreading (mis-)information, but also for fringe-groups of the political spectrum. They tend to use public channels on Telegram to establish their narratives or to recruit and to mobilise supporters. 
  
-Using the official API means you can respect the ToS in your work and get many data points beyond only the message content. Because you need to specify only the channel name, you can easily get started and study information flows between channels or different social media platforms.
+This tutorial shows how to use the official API while respecting Telegram's terms of services. You can even retrieve many data points beyond only the message content. Because you need to specify only the channel name, you can easily get started and study information flows between channels or different social media platforms.
 
 # Preparations & Installation
 
