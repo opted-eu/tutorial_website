@@ -19,6 +19,18 @@ In this tutorial, we show how journalistic media texts can be retrieved from Tel
  
 This tutorial shows how to use the official API while respecting Telegram's terms of services. You can even retrieve many data points beyond only the message content. Because you need to specify only the channel name, you can easily get started and study information flows between channels or different social media platforms.
 
+
+# Overview
+
+1. [Installing the python module](#Preparations-&-Installation)
+2. [Testing the API](#testing-the-api)
+3. [Connecting to the chat](#connecting-to-a-chat)
+4. [Retrieving messages](#retrieving-messages)
+5. [Downloading and storing all messages](#downloading-and-storing-all-messages)
+6. [Summary](#summary)
+
+A set of finished sample scripts can be downloaded at the bottom of this page.
+
 # Preparations & Installation
 
 To keep things neat and tidy, create a new directory for this tutorial and name it `telegram_scraping`. For the remainder of the tutorial, we assume that all commands are run from this directory.
