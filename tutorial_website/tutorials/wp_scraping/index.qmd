@@ -169,7 +169,7 @@ post = posts[0]
 print(post.keys())
 ```
 
-The `keys()` method shows us all fields that a single object contains. We get meta-information in a beatiful and standardized format. For example, regardless of the blog layout or language, the `date` field is always in a machine readable format. The exact fields that are interesting for your research might vary, but typically the most interesting fields are:
+The `keys()` method shows us all fields that a single object contains. We get meta-information in a beautiful and standardized format. For example, regardless of the blog layout or language, the `date` field is always in a machine readable format. The exact fields that are interesting for your research might vary, but typically the most interesting fields are:
 
 - `id` (`int`): numeric ID of the post.
 - `date` (`str`): Date and time post was published. Format `YYYY-MM-DD HH:MM:SS`.
